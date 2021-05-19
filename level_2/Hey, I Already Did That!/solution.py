@@ -1,12 +1,32 @@
-def solution(s):
+def solution(n,b):
     # Your code here
-    idx = 0
-    num_of_employee = 0
-    salutes = []
-    while idx<len(s):
-        if s[idx] == ">" or s[idx] == "<":
-            num_of_employee += 1
-            if s[idx] == "<":
-                salutes.append(num_of_employee -1-len(salutes))
-        idx += 1
-    return sum(salutes)*2
+    cycle = [n]
+    i = 0
+    while i <1000:
+        n = onestep(n,b)
+        try:
+            res = cycle.index(n)
+            return len(cycle)-res
+        except ValueError: 
+            cycle.append(n)
+        i += 1
+    return "i>1000"
+
+def numberToBase(n, b):
+    if n == 0:
+        return '0'
+    digits = []
+    while n:
+        digits.append(int(n % b))
+        n //= b
+    return ''.join(map(str,digits[::-1]))
+
+def onestep(n,b):
+    max_n = list(n)
+    min_n =list(n)
+    max_n.sort(reverse=True)
+    min_n.sort()
+    max_n = int("".join(max_n),b)
+    min_n = int("".join(min_n),b)
+    next_n = max_n - min_n
+    return numberToBase(next_n,b)
