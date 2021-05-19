@@ -3,19 +3,14 @@ def solution(x,y):
     M = int(x)
     F = int(y)
     gen = 0
-    while M>0 and F>0:
-        if M %2 == 0 and F%2 == 0:
+    while min(M,F) > 1:
+        if max(M,F)%min(M,F) == 0:
             return "impossible"
-        if F == 1 and M == 1:
-            print("gen :",gen," (",M, "," ,F,")" )
-            return str(gen)
-        elif M>F:
-            M = M-F
-            gen += 1
-            print("gen :",gen," (",M, "," ,F,")" )
-        else:
-            F = F-M
-            gen += 1
-            print("gen :",gen," (",M, "," ,F,")" )
-    print("gen :",gen," (",M, "," ,F,")" )
-    return "impossible"
+        gen += max(M,F)//min(M,F)
+        M,F = max(M,F)%min(M,F),min(M,F)
+
+    if (M,F) == (1,1):
+        return str(gen)
+    else:
+        gen += max(M,F)//min(M,F) -1
+        return str(gen)
