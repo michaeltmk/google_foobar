@@ -11,8 +11,6 @@ def find_LCM(denominators):
         common_denominator = common_denominator*denominator/fractions.gcd(common_denominator, denominator)
     return common_denominator, denominators, terminal_states
 
-def identity(length):
-    
 
 def solution(m):
     # Your code here
@@ -64,10 +62,14 @@ def solution(m):
     # print('u',u)
 
      
+def float2int(list_):
+    while min(List_) != 1:
+        list_ = list(map(lambda x: x/min(list_),list_))
+    
 
 if __name__ == "__main__":
-
-    # print(find_LCM([3, 7, 1, 1, 1]))
+    print(find_LCM([3, 7, 1, 1, 1]))
+    print(find_LCM([1.0, 0.0, -0.0, -0.21428571428571427, -0.14285714285714285, -0.6428571428571428]))
     
-    solution([[0, 1, 0, 0, 0, 1], [4, 0, 0, 3, 2, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
+    # solution([[0, 1, 0, 0, 0, 1], [4, 0, 0, 3, 2, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
     # solution([[0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0], [0, 0, 0, 0,0], [0, 0, 0, 0, 0]])
