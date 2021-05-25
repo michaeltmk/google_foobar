@@ -1,75 +1,236 @@
-import fractions
+from fractions import Fraction
 
-def find_LCM(denominators):
-    common_denominator = 1
-    terminal_states = []
-    for idx, denominator in enumerate(denominators):
-        if denominator == 0:
-            denominators[idx] = 1
-            terminal_states.append(idx)
-            denominator = 1
-        common_denominator = common_denominator*denominator/fractions.gcd(common_denominator, denominator)
-    return common_denominator, denominators, terminal_states
+# Replace trials by probabilties of occurrences
+def replace_probability(m):        
+    for row in range(len(m)):
+        total = 0
+        for item in range(len(m[row])):
+            total += m[row][item]
+        if total != 0:
+            for item in range(len(m[row])):
+                m[row][item] /= float(total)
+    return m
 
+# R - non-terminal -> terminal
+# Q - non-terminal -> non-terminal
+def RQ(m, terminal_state, non_terminal_state):
+    R = []
+    Q = []
+    for i in non_terminal_state:
+        temp_t = []
+        temp_n = []
+        for j in terminal_state:
+            temp_t.append(m[i][j])
+        for j in non_terminal_state:
+            temp_n.append(m[i][j])
+        R.append(temp_t)
+        Q.append(temp_n)
+    return R, Q
+
+# Get Identity Matrix - Q
+def subtract_Q_from_identity(Q):
+    """
+    If Q = [
+        [1,2,3],
+        [4,5,6],
+        [7,8,9],
+    ]
+    I - Q:
+    [[1,0,0]            [[0,-2,-3]
+     [0,1,0]   - Q =     [-4,-4,-6]
+     [0,0,1]]            [-7,-8,-8]]
+    """
+
+    n = len(Q)
+    for row in range(len(Q)):
+        for item in range(len(Q[row])):
+            if row == item:
+                Q[row][item] = 1 - Q[row][item]
+            else:
+                Q[row][item] = -Q[row][item]
+    return Q
+
+# Get minor matrix
+def get_minor_matrix(Q,i,j):
+    """
+    Q = [
+        [1,2,3],
+        [4,5,6],
+        [7,8,9],
+    ]
+    Minor matrix corresponding to 0,0 is
+    [
+        [5,6],
+        [8,9],
+    ]
+    """
+
+    minor_matrix = []
+    for row in Q[:i] + Q[i+1:]:
+        temp = []
+        for item in row[:j] + row[j+1:]:
+            temp.append(item)
+        minor_matrix.append(temp)
+    return minor_matrix
+
+# Get determinant of a square matrix
+def get_determinant(Q):
+    if len(Q) == 1:
+        return Q[0][0]
+    if len(Q) == 2:
+        return Q[0][0]*Q[1][1] - Q[0][1]*Q[1][0]
+    
+    determinant = 0
+    for first_row_item in range(len(Q[0])):
+        minor_matrix = get_minor_matrix(Q, 0, first_row_item)
+        determinant += (((-1)**first_row_item)*Q[0][first_row_item] * get_determinant(minor_matrix))
+
+    return determinant
+
+# Get transpose of a square matrix
+def get_transpose_square_matrix(Q):
+    for i in range(len(Q)):
+        for j in range(i, len(Q), 1):
+            Q[i][j], Q[j][i] = Q[j][i], Q[i][j]
+    return Q
+
+
+def get_inverse(Q):
+    Q1 = []
+    for row in range(len(Q)):
+        temp = []
+        for column in range(len(Q[row])):
+            minor_matrix = get_minor_matrix(Q, row, column)
+            determinant = get_determinant(minor_matrix)
+            temp.append(((-1)**(row+column))*determinant)
+        Q1.append(temp)
+    main_determinant = get_determinant(Q)
+    Q1 = get_transpose_square_matrix(Q1)
+    for i in range(len(Q)):
+        for j in range(len(Q[i])):
+            Q1[i][j] /= float(main_determinant)
+    return Q1
+
+def multiply_matrix(A, B):
+    result = []
+    dimension = len(A)
+    for row in range(len(A)):
+        temp = []
+        for column in range(len(B[0])):
+            product = 0
+            for selector in range(dimension):
+                product += (A[row][selector]*B[selector][column])
+            temp.append(product)
+        result.append(temp)
+    return result
+
+def gcd(a ,b):
+    if b==0:
+        return a
+    else:
+        return gcd(b,a%b)   
+
+def sanitize(M):
+    needed = M[0]
+    to_fraction = [Fraction(i).limit_denominator() for i in needed]
+    lcm = 1
+    for i in to_fraction:
+        if i.denominator != 1:
+            lcm = i.denominator
+    for i in to_fraction:
+        if i.denominator != 1:
+            lcm = lcm*i.denominator/gcd(lcm, i.denominator)
+    to_fraction = [(i*lcm).numerator for i in to_fraction]
+    to_fraction.append(lcm)
+    return to_fraction
+
+def ToReducedRowEchelonForm( M):
+    lead = 0
+    rowCount = len(M)
+    columnCount = len(M[0])
+    for r in range(rowCount):
+        if lead >= columnCount:
+            return
+        i = r
+        while M[i][lead] == 0:
+            i += 1
+            if i == rowCount:
+                i = r
+                lead += 1
+                if columnCount == lead:
+                    return
+        M[i],M[r] = M[r],M[i]
+        lv = M[r][lead]
+        M[r] = [ mrx / lv for mrx in M[r]]
+        for i in range(rowCount):
+            if i != r:
+                lv = M[i][lead]
+                M[i] = [ iv - lv*rv for rv,iv in zip(M[r],M[i])]
+        lead += 1
 
 def solution(m):
-    # Your code here
-    denominators = list(map(sum,m))
-    common_denominator ,denominators, terminal_states = find_LCM(denominators)
-    for idx, row in enumerate(m):
-        if max(row) == 0:
-            row[idx] = common_denominator
+    n = len(m)
+    if n==1:
+        if len(m[0]) == 1 and m[0][0] == 0:
+            return [1, 1]
+    terminal_state = []
+    non_terminal_state = []
+
+    # Get terminal and non-terminal states
+    for row in range(len(m)):
+        count = 0
+        for item in range(len(m[row])):
+            if m[row][item] == 0:
+                count += 1
+        if count == n:
+            terminal_state.append(row)
         else:
-            m[idx] = list(map(lambda x: x*common_denominator/denominators[idx],row))
-    # print('denominators',denominators)
-    print('common_denominator',common_denominator)
-    stochastic_matrix = m
-    print('stochastic_matrix',stochastic_matrix)
+            non_terminal_state.append(row)
+    # Replace trials by probabilties
+    probabilities = replace_probability(m)
+    # Get R and Q matrix
+    print(probabilities)
+    R, Q = RQ(probabilities, terminal_state, non_terminal_state)
+    # print(R)
+    # print(Q)
+    IQ = subtract_Q_from_identity(Q)
+    # print(IQ)
+    # Get Fundamental Matrix (F)
+    IQ1 = get_inverse(IQ)
+    product_IQ1_R = multiply_matrix(IQ1, R)
+    print(product_IQ1_R)
+    return sanitize(product_IQ1_R)
 
-    # print('eignvalue by np method')
-    # eigenvalues, leigenvectors,reigenvectors  = scipy.linalg.eig(stochastic_matrix, left = True, right = True)
-    # print(eigenvalues)
-    # print(leigenvectors)
-    # print(reigenvectors)
-    # i = np.where(eigenvalues == common_denominator)[0]
-    # eigenvectors = leigenvectors[:,-1]
-    # print(eigenvectors)
+# Case where state 0 itself is a terminal state
+# assert(solution(
+#     [
+#         [0],
+#     ]
+# )) == [1, 1]
 
-    print('eignvalue by elimiation')
-    general_equations = stochastic_matrix - common_denominator*np.identity(len(m))
-    print(general_equations)
-    for idx in terminal_states:
-        LHS = np.copy(general_equations)
-        del_states = terminal_states[:]
-        del_states.remove(idx)
-        LHS[idx,idx] = 1
-        RHS = LHS[idx]
-        # print(LHS)
-        LHS = np.delete(LHS,del_states,axis = 0)
-        LHS = np.delete(LHS,del_states,axis = 1)
-        RHS = np.delete(RHS,del_states)
-        print(LHS)
-        print(RHS)
-        X2 = np.linalg.solve(LHS,RHS)
-        print('X2',X2)  
-        # pl, u = lu(LHS, permute_l=True)
-        # print('u',u)
-        # p,l, u = lu(u)
-        # print('l',l)
+# assert(solution(
+#     [
+#         [0, 2, 1, 0, 0],
+#         [0, 0, 0, 3, 4],
+#         [0, 0, 0, 0, 0],
+#         [0, 0, 0, 0, 0],
+#         [0, 0, 0, 0, 0],
+#     ]
+# )) == [7, 6, 8, 21]
 
+# assert(solution(
+#     [
+#         [0, 1, 0, 0, 0, 1],
+#         [4, 0, 0, 3, 2, 0],
+#         [0, 0, 0, 0, 0, 0],
+#         [0, 0, 0, 0, 0, 0],
+#         [0, 0, 0, 0, 0, 0],
+#         [0, 0, 0, 0, 0, 0],
+#     ]
+# )) == [0, 3, 2, 9, 14]
 
-    # pl, u = lu(general_equations, permute_l=True)
-    # print('u',u)
-
-     
-def float2int(list_):
-    while min(List_) != 1:
-        list_ = list(map(lambda x: x/min(list_),list_))
     
-
 if __name__ == "__main__":
-    print(find_LCM([3, 7, 1, 1, 1]))
-    print(find_LCM([1.0, 0.0, -0.0, -0.21428571428571427, -0.14285714285714285, -0.6428571428571428]))
-    
-    # solution([[0, 1, 0, 0, 0, 1], [4, 0, 0, 3, 2, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
-    # solution([[0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0], [0, 0, 0, 0,0], [0, 0, 0, 0, 0]])
+    r =solution([[0, 1, 0, 0, 0, 1], [4, 0, 1, 3, 2, 0], [0, 0, 0, 0, 0, 0], [1, 2, 3, 4, 5, 6], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
+#     # solution([[0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0], [0, 0, 0, 0,0], [0, 0, 0, 0, 0]])
+    print(r)
