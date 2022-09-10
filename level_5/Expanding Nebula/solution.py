@@ -27,6 +27,17 @@ def filling(set_of_previous, next_element,encoded_list_0, encoded_list_1):
                 new_set_of_previous.append(sequence+[element])
     return new_set_of_previous
 
+def decode(encoded_column):
+    left = []
+    right = []
+    for element in encoded_column:
+        left.append(element["left"])
+        right.append(element["right"])
+    return {"left":"".join(left), "right":"".join(right)}
+
+def multi_decode(encoded_columns):
+    return [decode(encoded_column) for encoded_column in encoded_columns]
+
 def set_of_previous_1d(current_column,encoded_list_0, encoded_list_1):
     set_of_previous = []
     for e in current_column:

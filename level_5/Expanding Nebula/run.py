@@ -32,6 +32,18 @@ def test_filling():
             [{'up': '00', 'down': '01', 'left': '00', 'right': '01'}, {'up': '01', 'down': '11', 'left': '01', 'right': '11'}]
         ]
 
+def test_multi_decode():
+    assert solution.multi_decode(
+            [
+                [{'up': '10', 'down': '00', 'left': '10', 'right': '00'}, {'up': '00', 'down': '00', 'left': '00', 'right': '00'}], 
+                [{'up': '10', 'down': '00', 'left': '10', 'right': '00'}, {'up': '00', 'down': '11', 'left': '01', 'right': '01'}]
+            ]
+        ) == \
+                [
+                    {'left': '1000', 'right': "0000"},
+                    {'left': '1001', 'right': '0001'}
+                ]
+
 if __name__ == '__main__':
     # _test_solution()
     # _test_encode_list_to_int()
