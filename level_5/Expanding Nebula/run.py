@@ -44,6 +44,24 @@ def test_multi_decode():
                     {'left': '1001', 'right': '0001'}
                 ]
 
+def test_set_of_previous_1d():
+    assert \
+        solution.set_of_previous_1d([0,1],solution.encoded_list_0,solution.encoded_list_1) == \
+        [
+            {'left': '0001', 'right': '0000'}, 
+            {'left': '0000', 'right': '0001'},
+            {'left': '1001', 'right': '1000'}, 
+            {'left': '1000', 'right': '1001'}, 
+            {'left': '1110', 'right': '0000'}, 
+            {'left': '1000', 'right': '0110'}, 
+            {'left': '0110', 'right': '1000'}, 
+            {'left': '0000', 'right': '1110'}, 
+            {'left': '1110', 'right': '1000'}, 
+            {'left': '1000', 'right': '1110'}
+        ]
+
+
+
 if __name__ == '__main__':
     # _test_solution()
     # _test_encode_list_to_int()

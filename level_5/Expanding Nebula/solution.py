@@ -42,7 +42,15 @@ def set_of_previous_1d(current_column,encoded_list_0, encoded_list_1):
     set_of_previous = []
     for e in current_column:
         set_of_previous = filling(set_of_previous, e, encoded_list_0, encoded_list_1)
+    set_of_previous = multi_decode(set_of_previous)
     return set_of_previous
 
 def solution(list_list):
-    pass
+    grid = []
+    for current_column in list_list:
+        grid.append(set_of_previous_1d(current_column,encoded_list_0, encoded_list_1))
+    
+    #compute the possible solutions
+    count = 0
+    pervious_column_right = [value for value in grid[0]]
+
