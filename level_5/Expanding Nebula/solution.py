@@ -1,36 +1,3 @@
-from stat import FILE_ATTRIBUTE_ENCRYPTED
-
-
-basic_unit_return_0 = [
-    "0000",
-    "1100",
-    "1010",
-    "1001",
-    "0110",
-    "0101",
-    "0011",
-    "1110",
-    "1101",
-    "1011",
-    "0111",
-    "1111",
-]
-basic_unit_return_1 = ["1000", "0100", "0010", "0001"]
-
-
-def encode_list_to_int(basic_units):
-    result = {}
-    for basic_unit in basic_units:
-        # up = int(basic_unit[:2],2)
-        # down = int(basic_unit[2:],2)
-        up = basic_unit[:2]
-        down = basic_unit[2:]
-        left = basic_unit[0] + basic_unit[2]
-        right = basic_unit[1] + basic_unit[3]
-        result[basic_unit] = {"up": up, "down": down, "left": left, "right": right}
-    return result
-
-
 encoded_list_0 = {
     "0000": {"up": "00", "down": "00", "left": "00", "right": "00"},
     "1100": {"up": "11", "down": "00", "left": "10", "right": "10"},
@@ -51,21 +18,6 @@ encoded_list_1 = {
     "0010": {"up": "00", "down": "10", "left": "01", "right": "00"},
     "0001": {"up": "00", "down": "01", "left": "00", "right": "01"},
 }
-
-
-def encode_ref_list(basic_units):
-    result = {}
-    for basic_unit in basic_units:
-        up = basic_unit[:2]
-        down = basic_unit[2:]
-        left = basic_unit[0] + basic_unit[2]
-        right = basic_unit[1] + basic_unit[3]
-        result[up] = result.get(up, []) + [
-            {"up": up, "down": down, "left": left, "right": right}
-        ]
-    return result
-
-
 encoded_list_0_ = {
     "00": [
         {"up": "00", "down": "00", "left": "00", "right": "00"},
@@ -96,17 +48,6 @@ encoded_list_1_ = {
         {"up": "00", "down": "01", "left": "00", "right": "01"},
     ],
 }
-
-
-def init_set_of_previous(encoded_list):
-    init_set_of_previous = {}
-    for _, basic_unit in encoded_list.items():
-        init_set_of_previous[basic_unit["down"]] = init_set_of_previous.get(
-            basic_unit["down"], []
-        ) + [{"left": basic_unit["left"], "right": basic_unit["right"]}]
-    return init_set_of_previous
-
-
 init_set_of_previous_0 = {
     "00": [{"left": "00", "right": "00"}, {"left": "10", "right": "10"}],
     "10": [
