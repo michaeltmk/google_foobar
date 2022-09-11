@@ -70,6 +70,7 @@ def multi_decode(encoded_columns):
 
 def initial_past(encoded_columns):
     '''
+        right as the key
         encoded_columns: [
                 [{"up":"10","down":"01","left":"00","right":"01"}, ...],
                 [{"up":"10","down":"01","left":"01","right":"11"}, ...],
