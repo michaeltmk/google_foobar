@@ -72,8 +72,8 @@ def test_multi_decode():
 
 
 def _test_case_gener():
-    q_grid_i = random.randint(1, 10)
-    q_grid_j = random.randint(1, 10)
+    q_grid_i = random.randint(3, 9)
+    q_grid_j = random.randint(3, 50)
     grid = []
     for i in range(q_grid_i):
         grid.append([])
