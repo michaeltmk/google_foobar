@@ -18,10 +18,9 @@ def test_set_of_previous_1d():
         {"left": "1000", "right": "1110"},
     ]
 
-
-def test_solution():
+def general_test(module):
     assert (
-        solution.solution(
+        module.solution(
             [
                 [True, True, False, True, False, True, False, True, True, False],
                 [True, True, False, False, False, False, True, True, True, False],
@@ -32,13 +31,13 @@ def test_solution():
         == 11567
     )
     assert (
-        solution.solution(
+        module.solution(
             [[True, False, True], [False, True, False], [True, False, True]]
         )
         == 4
     )
     assert (
-        solution.solution(
+        module.solution(
             [
                 [True, False, True, False, False, True, True, True],
                 [True, False, True, False, False, False, True, False],
@@ -49,6 +48,10 @@ def test_solution():
         )
         == 254
     )
+    assert module.solution(_max_test_case(11)) == 1163827102524815769
+
+def test_solution():
+    general_test(solution)
 
 
 def test_dynamic_filling():
@@ -73,15 +76,19 @@ def test_multi_decode():
 
 def _test_case_gener():
     q_grid_i = random.randint(3, 9)
-    q_grid_j = random.randint(3, 50)
+    q_grid_j = random.randint(3, 11)
     grid = []
     for i in range(q_grid_i):
         grid.append([])
-        for j in range(q_grid_j):
+        for _ in range(q_grid_j):
             grid[i].append(random.choice([True, False]))
-    ground_truth = solution.solution(grid)
-    return grid, ground_truth
+    return grid
 
+def _max_test_case(width):
+    grid = []
+    for i in range(9):
+        grid.append([int(x) for x in list(bin(i)[2:].zfill(width))])
+    return grid
 
 def test_filling():
     encoded_list_0 = solution.encoded_list_0_
@@ -112,47 +119,7 @@ def test_filling():
     }
 
 
-def _test_solution2():
-    assert (
-        solution.solution2(
-            [
-                [True, True, False, True, False, True, False, True, True, False],
-                [True, True, False, False, False, False, True, True, True, False],
-                [True, True, False, False, False, False, False, False, False, True],
-                [False, True, False, False, False, False, True, True, False, False],
-            ]
-        )
-        == 11567
-    )
-    assert (
-        solution.solution2(
-            [[True, False, True], [False, True, False], [True, False, True]]
-        )
-        == 4
-    )
-    assert (
-        solution.solution2(
-            [
-                [True, False, True, False, False, True, True, True],
-                [True, False, True, False, False, False, True, False],
-                [True, True, True, False, False, False, True, False],
-                [True, False, True, False, False, False, True, False],
-                [True, False, True, False, False, True, True, True],
-            ]
-        )
-        == 254
-    )
-
-
-def _test_compare_solution():
-    for _ in range(100):
-        grid, ground_truth = _test_case_gener()
-        assert solution.solution2(grid) == ground_truth
-
-
 if __name__ == "__main__":
     # _test_solution()
     # _test_encode_list_to_int()
-    # test_filling()
-    print(solution.encoded_list_0_)
-    print(solution.encoded_list_1_)
+    test_filling()
