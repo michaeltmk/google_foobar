@@ -104,6 +104,11 @@ def test_set_of_previous_1d():
         ],
     ]
 
+def test_set_of_previous_1d2():
+    assert solution.set_of_previous_1d2(
+        [0, 1], solution.encoded_list_0_, solution.encoded_list_1_
+    ) == [{'left': '0001', 'right': '0000'}, {'left': '1001', 'right': '1000'}, {'left': '0000', 'right': '0001'}, {'left': '1000', 'right': '1001'}, {'left': '1110', 'right': '0000'},{'left': '0110', 'right': '1000'}, {'left': '1110', 'right': '1000'}, {'left': '1000', 'right': '0110'},  {'left': '0000', 'right': '1110'}, {'left': '1000', 'right': '1110'}]
+
 def test_solution():
     assert (
         solution.solution(
@@ -181,6 +186,24 @@ def test_multi_decode():
         ]
     ) == {"10000000": ["00000000"], "10010110": ["00010100", "00010101"]}
 
+def test_multi_decode():
+    assert solution.multi_decode(
+        [
+            [
+                {"up": "10", "down": "00", "left": "10", "right": "00"},
+                {"up": "00", "down": "00", "left": "00", "right": "00"},
+            ],
+            [
+                {"up": "10", "down": "00", "left": "10", "right": "00"},
+                {"up": "00", "down": "11", "left": "01", "right": "01"},
+            ],
+        ]
+    ) == {"1000": ["0000"], "1001": ["0001"]}
+
+    assert solution.multi_decode2(
+        [{'left': '10000000', 'right': '00000000'}, {'left': '10010110', 'right': '00010100'}, {'left': '10010110', 'right': '00010101'}]
+    ) == {"10000000": ["00000000"], "10010110": ["00010100", "00010101"]}
+
 def _test_case_gener():
     q_grid_i = random.randint(1, 10)
     q_grid_j = random.randint(1, 10)
@@ -220,7 +243,7 @@ def test_filling2():
         "01": [{"left": "0110", "right": "0001"}, {"left": "0000", "right": "0111"}],
     }
 
-def _test_solution2():
+def test_solution2():
     assert (
         solution.solution2(
             [
@@ -251,7 +274,7 @@ def _test_solution2():
         == 254
     )
 
-def _test_compare_solution():
+def test_compare_solution():
     grid, ground_truth = _test_case_gener()
     assert solution.solution2(grid) == ground_truth
 

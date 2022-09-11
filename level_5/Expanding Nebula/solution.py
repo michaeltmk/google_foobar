@@ -1,4 +1,7 @@
 
+from stat import FILE_ATTRIBUTE_ENCRYPTED
+
+
 basic_unit_return_0 = ["0000","1100","1010","1001","0110","0101","0011","1110","1101","1011","0111","1111"]
 basic_unit_return_1 = ["1000","0100","0010","0001"]
 def encode_list_to_int(basic_units):
@@ -117,6 +120,19 @@ def multi_decode(encoded_columns):
             result[code['left']] = result.get(code['left'],[]) + [code['right']]
         return result
 
+def multi_decode2(encoded_columns):
+        '''
+        encoded_columns: [{"left":"00...","right":"01..."}, ...]
+        to
+        result: {"1000": ["1000"], "0100":["1001","0011"] , ...}
+        '''
+        result = {}
+        for encoded_column in encoded_columns:
+            if not result.get(encoded_column['left']):
+                result[encoded_column['left']] = []
+            result[encoded_column['left']].append(encoded_column['right'])
+        return result
+
 def initial_past(encoded_columns):
     '''
         right as the key
@@ -134,11 +150,41 @@ def initial_past(encoded_columns):
         result[right] = result.get(right,0) + 1
     return result
 
+def initial_past2(encoded_columns):
+    '''
+        right as the key
+        encoded_columns: [{"left":"00...","right":"01..."}, ...]
+        to
+        result: {"1000": 2, "0100":3 , ...}
+    '''
+    result = {}
+    for column in encoded_columns:
+        right = column['right']
+        result[right] = result.get(right,0) + 1
+    return result
+
+def flatten(columns):
+    '''
+        columns: {"00":[{"left":"00...","right":"01..."}, ...], ...}
+        to
+        result: [{"left":"00...","right":"01..."},...]
+    '''
+    result = []
+    for v in columns.values():
+        result += v
+    return result
+
 def set_of_previous_1d(current_column,encoded_list_0, encoded_list_1):
     set_of_previous = []
     for e in current_column:
         set_of_previous = filling(set_of_previous, e, encoded_list_0, encoded_list_1)
     return set_of_previous
+
+def set_of_previous_1d2(current_column,encoded_list_0, encoded_list_1):
+    set_of_previous = []
+    for e in current_column:
+        set_of_previous = filling2(set_of_previous, e, encoded_list_0, encoded_list_1)
+    return flatten(set_of_previous)
 
 def solution(list_list):
     #special care first column as we need to initial the past
@@ -150,6 +196,22 @@ def solution(list_list):
         grid.append(multi_decode(set_of_previous_1d(current_column,encoded_list_0, encoded_list_1)))
     
     #compute the possible solutions
+    for next_ref in grid:
+        past = dynamic_filling(past, next_ref)
+    return sum(past.values())
+
+def solution2(list_list):
+    #special care first column as we need to initial the past
+    first_column = list_list[0]
+    past = initial_past2(set_of_previous_1d2(first_column,encoded_list_0_, encoded_list_1_))
+
+    grid = []
+    for current_column in list_list[1:]:
+        grid.append(multi_decode2(set_of_previous_1d2(current_column,encoded_list_0_, encoded_list_1_)))
+    
+    #compute the possible solutions
+    print(past)
+    print(grid)
     for next_ref in grid:
         past = dynamic_filling(past, next_ref)
     return sum(past.values())
