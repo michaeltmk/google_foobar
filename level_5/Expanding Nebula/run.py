@@ -2,8 +2,8 @@ import solution
 import random
 
 def test_filling():
-    encoded_list_0 = solution.encode_list_to_int(solution.basic_unit_return_0)
-    encoded_list_1 = solution.encode_list_to_int(solution.basic_unit_return_1)
+    encoded_list_0 = solution.encoded_list_0
+    encoded_list_1 = solution.encoded_list_1
     assert solution.filling([], 1, encoded_list_0, encoded_list_1) == [
         [encoded_list_1[k]] for k in encoded_list_1.keys()
     ]
@@ -192,6 +192,34 @@ def _test_case_gener():
     ground_truth = solution.solution(grid)
     return grid, ground_truth
 
+def test_filling2():
+    encoded_list_0 = solution.encoded_list_0_
+    encoded_list_1 = solution.encoded_list_1_
+    assert (
+        solution.filling2([], 1, encoded_list_0, encoded_list_1)
+        == solution.init_set_of_previous_1
+    )
+    assert (
+        solution.filling2([], 0, encoded_list_0, encoded_list_1)
+        == solution.init_set_of_previous_0
+    )
+    assert solution.filling2(
+        solution.init_set_of_previous_1,
+        0,
+        encoded_list_0,
+        encoded_list_1,
+    ) == {
+        "00": [{"left": "1000", "right": "0000"}, {"left": "0000", "right": "1000"}],
+        "11": [
+            {"left": "1001", "right": "0001"},
+            {"left": "0001", "right": "1001"},
+            {"left": "0111", "right": "0001"},
+            {"left": "0001", "right": "0111"},
+        ],
+        "10": [{"left": "0111", "right": "0000"}, {"left": "0001", "right": "0110"}],
+        "01": [{"left": "0110", "right": "0001"}, {"left": "0000", "right": "0111"}],
+    }
+
 def _test_solution2():
     assert (
         solution.solution2(
@@ -231,4 +259,6 @@ def _test_compare_solution():
 if __name__ == "__main__":
     # _test_solution()
     # _test_encode_list_to_int()
-    test_filling()
+    # test_filling()
+    print(solution.encoded_list_0_)
+    print(solution.encoded_list_1_)

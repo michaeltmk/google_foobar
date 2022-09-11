@@ -12,8 +12,29 @@ def encode_list_to_int(basic_units):
         right = basic_unit[1] + basic_unit[3]
         result[basic_unit] = {"up":up,"down":down,"left":left,"right":right}
     return result
-encoded_list_0 = encode_list_to_int(basic_unit_return_0)
-encoded_list_1 = encode_list_to_int(basic_unit_return_1)
+encoded_list_0 = {'0000': {'up': '00', 'down': '00', 'left': '00', 'right': '00'}, '1100': {'up': '11', 'down': '00', 'left': '10', 'right': '10'}, '1010': {'up': '10', 'down': '10', 'left': '11', 'right': '00'}, '1001': {'up': '10', 'down': '01', 'left': '10', 'right': '01'}, '0110': {'up': '01', 'down': '10', 'left': '01', 'right': '10'}, '0101': {'up': '01', 'down': '01', 'left': '00', 'right': '11'}, '0011': {'up': '00', 'down': '11', 'left': '01', 'right': '01'}, '1110': {'up': '11', 'down': '10', 'left': '11', 'right': '10'}, '1101': {'up': '11', 'down': '01', 'left': '10', 'right': '11'}, '1011': {'up': '10', 'down': '11', 'left': '11', 'right': '01'}, '0111': {'up': '01', 'down': '11', 'left': '01', 'right': '11'}, '1111': {'up': '11', 'down': '11', 'left': '11', 'right': '11'}}
+encoded_list_1 = {'1000': {'up': '10', 'down': '00', 'left': '10', 'right': '00'}, '0100': {'up': '01', 'down': '00', 'left': '00', 'right': '10'}, '0010': {'up': '00', 'down': '10', 'left': '01', 'right': '00'}, '0001': {'up': '00', 'down': '01', 'left': '00', 'right': '01'}}
+
+
+def encode_ref_list(basic_units):
+    result = {}
+    for basic_unit in basic_units:
+        up = basic_unit[:2]
+        down = basic_unit[2:]
+        left = basic_unit[0] + basic_unit[2]
+        right = basic_unit[1] + basic_unit[3]
+        result[up] = result.get(up,[]) + [{"up":up,"down":down,"left":left,"right":right}]
+    return result
+encoded_list_0_ = {'00': [{'up': '00', 'down': '00', 'left': '00', 'right': '00'}, {'up': '00', 'down': '11', 'left': '01', 'right': '01'}], '11': [{'up': '11', 'down': '00', 'left': '10', 'right': '10'}, {'up': '11', 'down': '10', 'left': '11', 'right': '10'}, {'up': '11', 'down': '01', 'left': '10', 'right': '11'}, {'up': '11', 'down': '11', 'left': '11', 'right': '11'}], '10': [{'up': '10', 'down': '10', 'left': '11', 'right': '00'}, {'up': '10', 'down': '01', 'left': '10', 'right': '01'}, {'up': '10', 'down': '11', 'left': '11', 'right': '01'}], '01': [{'up': '01', 'down': '10', 'left': '01', 'right': '10'}, {'up': '01', 'down': '01', 'left': '00', 'right': '11'}, {'up': '01', 'down': '11', 'left': '01', 'right': '11'}]}
+encoded_list_1_ = {'10': [{'up': '10', 'down': '00', 'left': '10', 'right': '00'}], '01': [{'up': '01', 'down': '00', 'left': '00', 'right': '10'}], '00': [{'up': '00', 'down': '10', 'left': '01', 'right': '00'}, {'up': '00', 'down': '01', 'left': '00', 'right': '01'}]}
+
+def init_set_of_previous(encoded_list):
+    init_set_of_previous = {}
+    for _, basic_unit in encoded_list.items():
+        init_set_of_previous[basic_unit['down']] = init_set_of_previous.get(basic_unit['down'],[]) + [{"left":basic_unit['left'], "right":basic_unit['right']}]
+    return init_set_of_previous
+init_set_of_previous_0 = {'00': [{'left': '00', 'right': '00'}, {'left': '10', 'right': '10'}], '10': [{'left': '11', 'right': '00'}, {'left': '01', 'right': '10'}, {'left': '11', 'right': '10'}], '01': [{'left': '10', 'right': '01'}, {'left': '00', 'right': '11'}, {'left': '10', 'right': '11'}], '11': [{'left': '01', 'right': '01'}, {'left': '11', 'right': '01'}, {'left': '01', 'right': '11'}, {'left': '11', 'right': '11'}]}
+init_set_of_previous_1 = {'00': [{'left': '10', 'right': '00'}, {'left': '00', 'right': '10'}], '10': [{'left': '01', 'right': '00'}], '01': [{'left': '00', 'right': '01'}]}
 
 def filling(set_of_previous, next_element,encoded_list_0, encoded_list_1):
     selected_encoded_list = encoded_list_0 if next_element == 0 else encoded_list_1
@@ -25,6 +46,34 @@ def filling(set_of_previous, next_element,encoded_list_0, encoded_list_1):
         for element in [selected_encoded_list[k] for k in selected_encoded_list.keys()]:
             if element["up"] == down:
                 new_set_of_previous.append(sequence+[element])
+    return new_set_of_previous
+
+def filling2(set_of_previous, next_element,encoded_list_0, encoded_list_1):
+    '''
+        aggregate the left and right of the previous column
+        latest down as a key
+        set_of_previous: {"00":[{"left":"00...0","right":"01...0"}], ...}
+        encoded_lists use up as a key
+        e.g. {"10": [{"up":"10","down":"01","left":"00","right":"01"}, ...], ...}
+        next_element: 0 or 1
+    '''
+    selected_encoded_list = encoded_list_0 if next_element == 0 else encoded_list_1
+    new_set_of_previous = {}
+    if len(set_of_previous) == 0:
+        return init_set_of_previous_1 if next_element == 1 else init_set_of_previous_0
+    for down, pre_v in set_of_previous.items():
+        for basic_unit in selected_encoded_list.get(down,[]):
+            if not new_set_of_previous.get(basic_unit["down"]):
+                new_set_of_previous[basic_unit["down"]] = []
+            for left_right in pre_v:
+                '''
+                    basic_unit: {"up":"10","down":"01","left":"00","right":"01"}
+                    left_right: {"left":"00...0","right":"01...0"}
+                    new_set_of_previous: {"11":[{"left":"00...01","right":"01...01"}], ...}
+                '''
+                left = left_right['left'] + basic_unit['left']
+                right = left_right['right'] + basic_unit['right']
+                new_set_of_previous[basic_unit["down"]].append({'left':left, 'right':right})
     return new_set_of_previous
 
 def decode(encoded_column):
