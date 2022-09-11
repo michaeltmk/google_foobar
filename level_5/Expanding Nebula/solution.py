@@ -160,6 +160,7 @@ def set_of_previous_1d(current_column, encoded_list_0, encoded_list_1):
 
 
 def solution(list_list):
+    list_list = list(zip(*list_list)) 
     # special care first column as we need to initial the past
     first_column = list_list[0]
     past = initial_past(
