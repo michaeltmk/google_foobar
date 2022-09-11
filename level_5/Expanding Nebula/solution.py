@@ -52,5 +52,14 @@ def solution(list_list):
     
     #compute the possible solutions
     count = 0
-    pervious_column_right = [value for value in grid[0]]
-
+    pervious_column_right = [e['right'] for e in grid[0]]
+    next_column_right = []
+    for i in range(1,len(grid)):
+        current_column = grid[i]
+        for right in pervious_column_right:
+            for element in current_column:
+                if right == element['left']:
+                    next_column_right.append(element['right'])
+        pervious_column_right = next_column_right
+        next_column_right = []
+    return len(pervious_column_right)
