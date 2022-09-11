@@ -28,6 +28,11 @@ def filling(set_of_previous, next_element,encoded_list_0, encoded_list_1):
     return new_set_of_previous
 
 def decode(encoded_column):
+    '''
+        encoded_column: [{"up":"10","down":"01","left":"00","right":"01"}, ...]
+        to
+        result: {"left":"00...","right":"01..."}
+    '''
     left = []
     right = []
     for element in encoded_column:
@@ -35,31 +40,66 @@ def decode(encoded_column):
         right.append(element["right"])
     return {"left":"".join(left), "right":"".join(right)}
 
+def dynamic_filling(past, next_ref):
+    '''
+        past: {"1000": 10, "0100":2 , ...}
+        next_ref: {"1000": ["1000"], "0100":["1001","0011"] , ...}
+    '''
+    result = {}
+    for past_e, past_v in past.items():
+        if next_ref.get(past_e):
+            for next_e in next_ref[past_e]:
+                result[next_e] = result.get(next_e,0) + past_v
+    return result
+
 def multi_decode(encoded_columns):
-    return [decode(encoded_column) for encoded_column in encoded_columns]
+        '''
+        encoded_columns: [
+                [{"up":"10","down":"01","left":"00","right":"01"}, ...],
+                [{"up":"10","down":"01","left":"01","right":"11"}, ...],
+                ...
+            ]
+        to
+        result: {"1000": ["1000"], "0100":["1001","0011"] , ...}
+        '''
+        result = {}
+        for encoded_column in encoded_columns:
+            code = decode(encoded_column)
+            result[code['left']] = result.get(code['left'],[]) + [code['right']]
+        return result
+
+def initial_past(encoded_columns):
+    '''
+        encoded_columns: [
+                [{"up":"10","down":"01","left":"00","right":"01"}, ...],
+                [{"up":"10","down":"01","left":"01","right":"11"}, ...],
+                ...
+            ]
+        to
+        result: {"1000": 2, "0100":3 , ...}
+    '''
+    result = {}
+    for column in encoded_columns:
+        right = decode(column)['right']
+        result[right] = result.get(right,0) + 1
+    return result
 
 def set_of_previous_1d(current_column,encoded_list_0, encoded_list_1):
     set_of_previous = []
     for e in current_column:
         set_of_previous = filling(set_of_previous, e, encoded_list_0, encoded_list_1)
-    set_of_previous = multi_decode(set_of_previous)
     return set_of_previous
 
 def solution(list_list):
+    #special care first column as we need to initial the past
+    first_column = list_list[0]
+    past = initial_past(set_of_previous_1d(first_column,encoded_list_0, encoded_list_1))
+
     grid = []
-    for current_column in list_list:
-        grid.append(set_of_previous_1d(current_column,encoded_list_0, encoded_list_1))
+    for current_column in list_list[1:]:
+        grid.append(multi_decode(set_of_previous_1d(current_column,encoded_list_0, encoded_list_1)))
     
     #compute the possible solutions
-    count = 0
-    pervious_column_right = [e['right'] for e in grid[0]]
-    next_column_right = []
-    for i in range(1,len(grid)):
-        current_column = grid[i]
-        for right in pervious_column_right:
-            for element in current_column:
-                if right == element['left']:
-                    next_column_right.append(element['right'])
-        pervious_column_right = next_column_right
-        next_column_right = []
-    return len(pervious_column_right)
+    for next_ref in grid:
+        past = dynamic_filling(past, next_ref)
+    return sum(past.values())
