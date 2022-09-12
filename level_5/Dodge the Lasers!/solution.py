@@ -1,21 +1,25 @@
-from math import floor, sqrt
+from decimal import Decimal, getcontext
+from math import floor
+
+getcontext().prec = 101
+root2 = Decimal(2).sqrt()
+states = (root2,root2+1,root2+2)
+root2_minus1 = states[0]-1
 
 def solution(str_n):
-    n = int(str_n)
-    a = sqrt(2)
-    return str(floor(sum_of_beatty(a,n)))
+    n = Decimal(str_n)
+    a = states[0]
+    return str(int(sum_of_beatty(a,n)))
 
 def sum_of_beatty(a,n):
     if n == 0:
         return 0
     if n == 1:
         return floor(a)
-    if a >= 2:
-        b = a-1
-        print(f"{a=} {b=} {n=}")
-        return sum_of_beatty(b,n) + n*(n+1)/2
-    if a < 2 and a > 1:
-        nd = floor((a-1)*n)
-        b = 1/(1-(1/a))
-        print(f"{a=} {b=} {n=} {nd=}")
+    nd = floor(root2_minus1*n)
+    nd = Decimal(nd)
+    b = states[-1]
+    if a == states[-1]:
+        return (n+nd)*(n+nd+1)/2 + n*(n+1) - sum_of_beatty(b,nd)
+    elif a == states[0]:
         return (n+nd)*(n+nd+1)/2 - sum_of_beatty(b,nd)
